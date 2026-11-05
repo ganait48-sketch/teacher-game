@@ -1,0 +1,2469 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Фонетический разбор слова — Интерактивный тренажёр</title>
+  <style>
+    :root {
+      --bg-warm: #F8F9FA;
+      --card-bg: #FFFFFF;
+      --accent-coral: #FF6B6B;
+      --accent-blue: #3A86FF;
+      --accent-green: #38B000;
+      --accent-amber: #FFB703;
+      --accent-purple: #7209B7;
+      --soft-shadow: 0 10px 25px -5px rgba(50, 65, 90, 0.08), 0 8px 10px -6px rgba(50, 65, 90, 0.04);
+      --card-border: #E8ECEF;
+      --text-main: #2B2D42;
+      --text-muted: #6C757D;
+      --vowel-color: #E63946;
+      --consonant-hard: #1D3557;
+      --consonant-soft: #2A9D8F;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Comic Sans MS', 'Comfortaa', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-warm);
+      background-image: 
+        radial-gradient(circle at 10% 10%, rgba(58, 134, 255, 0.04) 0%, transparent 40%),
+        radial-gradient(circle at 90% 90%, rgba(255, 107, 107, 0.05) 0%, transparent 40%),
+        linear-gradient(to right, rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
+      background-size: auto, auto, 24px 24px, 24px 24px;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      touch-action: manipulation;
+    }
+
+    /* HEADER & BENTO NAVIGATION */
+    header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 2px solid var(--card-border);
+      padding: 12px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .app-icon {
+      font-size: 2rem;
+      background: #EFF6FF;
+      width: 52px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 18px;
+      box-shadow: inset 0 2px 4px rgba(255,255,255,0.8), 0 4px 10px rgba(58,134,255,0.15);
+    }
+
+    .brand-title h1 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #1F2438;
+      line-height: 1.1;
+    }
+
+    .brand-title p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .word-input-group {
+      display: flex;
+      align-items: center;
+      background: #F1F4F9;
+      border-radius: 20px;
+      padding: 4px;
+      border: 2px solid transparent;
+      transition: all 0.25s ease;
+    }
+
+    .word-input-group:focus-within {
+      background: #fff;
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 4px rgba(58, 134, 255, 0.15);
+    }
+
+    #word-select {
+      background: transparent;
+      border: none;
+      outline: none;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-main);
+      padding: 8px 14px;
+      cursor: pointer;
+      border-right: 2px solid #E2E8F0;
+      border-radius: 16px 0 0 16px;
+    }
+
+    #word-input {
+      background: transparent;
+      border: none;
+      outline: none;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      padding: 8px 16px;
+      width: 170px;
+      text-transform: lowercase;
+    }
+
+    .btn-parse {
+      background: linear-gradient(135deg, #3A86FF, #2563EB);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 16px;
+      font-weight: 800;
+      font-size: 1.05rem;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-parse:hover, .btn-parse:active {
+      transform: scale(1.04);
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.4);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .mode-pill {
+      display: flex;
+      background: #EDF2F7;
+      padding: 4px;
+      border-radius: 16px;
+    }
+
+    .mode-btn {
+      padding: 8px 14px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      border: none;
+      background: transparent;
+      color: #64748B;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .mode-btn.active {
+      background: #FFFFFF;
+      color: var(--text-main);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .icon-action-btn {
+      background: #FFFFFF;
+      border: 2px solid var(--card-border);
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+    }
+
+    .icon-action-btn:hover, .icon-action-btn:active {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      border-color: #CBD5E1;
+    }
+
+    /* MAIN WORKSPACE */
+    main {
+      flex: 1;
+      padding: 24px;
+      max-width: 1440px;
+      margin: 0 auto;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 24px;
+    }
+
+    @media (max-width: 1024px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* LEFT BOARD: BENTO CARDS */
+    .board-container {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .bento-card {
+      background: var(--card-bg);
+      border-radius: 28px;
+      padding: 24px;
+      border: 2px solid var(--card-border);
+      box-shadow: var(--soft-shadow);
+      position: relative;
+    }
+
+    /* SLOB-SYLLABLE & ACCENT DECK */
+    .word-interactive-deck {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      padding: 32px 24px;
+    }
+
+    .deck-controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .tool-btn {
+      background: #F1F5F9;
+      border: 2px solid #E2E8F0;
+      padding: 10px 20px;
+      border-radius: 16px;
+      font-size: 1rem;
+      font-weight: 800;
+      color: #334155;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .tool-btn.active {
+      background: #EFF6FF;
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+      box-shadow: 0 4px 12px rgba(58, 134, 255, 0.2);
+    }
+
+    .syllable-display-track {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 4px;
+      min-height: 100px;
+      padding: 12px;
+      background: #FAFBFD;
+      border-radius: 24px;
+      border: 2px dashed #D7E1EC;
+      width: 100%;
+    }
+
+    .letter-node-box {
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+
+    .letter-tile {
+      width: 66px;
+      height: 76px;
+      border-radius: 20px;
+      background: #FFFFFF;
+      border: 3px solid #E2E8F0;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.06);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      font-weight: 800;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .letter-tile:active {
+      transform: scale(0.94);
+    }
+
+    .letter-tile.is-vowel {
+      color: var(--vowel-color);
+      border-color: #FFCCD5;
+      background: #FFF9FA;
+    }
+
+    .letter-tile.is-consonant {
+      color: var(--consonant-hard);
+      border-color: #CFE2FE;
+    }
+
+    .accent-mark {
+      position: absolute;
+      top: -14px;
+      font-size: 2rem;
+      font-weight: 900;
+      color: #E63946;
+      line-height: 1;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: all 0.2s ease;
+      filter: drop-shadow(0 2px 4px rgba(230, 57, 70, 0.3));
+    }
+
+    .letter-tile.has-accent .accent-mark {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Syllable boundary interactive split */
+    .syllable-splitter {
+      width: 28px;
+      height: 60px;
+      margin: 0 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 10px;
+      position: relative;
+      transition: background 0.2s;
+    }
+
+    .syllable-splitter:hover {
+      background: rgba(58, 134, 255, 0.1);
+    }
+
+    .syllable-splitter::after {
+      content: '';
+      width: 4px;
+      height: 24px;
+      background: #CBD5E1;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+    }
+
+    .syllable-splitter.active::after {
+      height: 54px;
+      background: #3A86FF;
+      box-shadow: 0 0 10px rgba(58, 134, 255, 0.6);
+      width: 6px;
+    }
+
+    .syllable-counter-badge {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #334155;
+      background: #E2E8F0;
+      padding: 8px 20px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .syllable-counter-badge span {
+      color: #2563EB;
+      font-weight: 900;
+    }
+
+    /* VERTICAL DECOMPOSITION SECTION */
+    .vertical-analysis-deck {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .section-headline {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .section-headline h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #1E293B;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .teacher-tools {
+      display: none;
+      gap: 8px;
+    }
+
+    .teacher-tools.visible {
+      display: flex;
+    }
+
+    .teacher-action-btn {
+      background: #F8FAFC;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 12px;
+      padding: 6px 14px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: #475569;
+      transition: all 0.15s ease;
+    }
+
+    .teacher-action-btn:hover {
+      background: #EDF2F7;
+      color: #0F172A;
+    }
+
+    /* LETTER ROW ITEM */
+    .letter-breakdown-table {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .letter-row-card {
+      background: #FFFFFF;
+      border: 2px solid #E2E8F0;
+      border-radius: 20px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .letter-row-card.correct-row {
+      border-color: #38B000;
+      background: #F7FCF6;
+    }
+
+    .letter-row-card.error-row {
+      border-color: #FF6B6B;
+      background: #FFF6F6;
+    }
+
+    .letter-anchor-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 70px;
+      border-right: 2px solid #F1F5F9;
+      padding-right: 14px;
+      gap: 6px;
+    }
+
+    .primary-char {
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: #1E293B;
+      line-height: 1;
+    }
+
+    .letter-mode-toggles {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      width: 100%;
+    }
+
+    .mini-chip-toggle {
+      font-size: 0.72rem;
+      padding: 3px 6px;
+      border-radius: 8px;
+      border: 1px solid #CBD5E1;
+      background: #F8FAFC;
+      color: #475569;
+      cursor: pointer;
+      font-weight: 700;
+      text-align: center;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+
+    .mini-chip-toggle.active {
+      background: #4F46E5;
+      color: white;
+      border-color: #4F46E5;
+    }
+
+    .sub-sounds-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .sound-entry-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* SOUND TARGET BOX */
+    .sound-bracket-box {
+      background: #F8FAFC;
+      border: 2px dashed #94A3B8;
+      border-radius: 14px;
+      padding: 8px 16px;
+      font-size: 1.4rem;
+      font-weight: 800;
+      min-width: 90px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: #0F172A;
+      position: relative;
+    }
+
+    .sound-bracket-box.filled {
+      border: 2px solid #3A86FF;
+      background: #EFF6FF;
+      color: #1D4ED8;
+    }
+
+    .sound-bracket-box.is-vowel {
+      background: #FFF1F2;
+      border-color: #FB7185;
+      color: #BE123C;
+    }
+
+    .sound-bracket-box.is-hard {
+      background: #EFF6FF;
+      border-color: #60A5FA;
+      color: #1E40AF;
+    }
+
+    .sound-bracket-box.is-soft {
+      background: #ECFDF5;
+      border-color: #34D399;
+      color: #065F46;
+    }
+
+    .sound-bracket-box.no-sound {
+      background: #F1F5F9;
+      border: 2px solid #CBD5E1;
+      color: #94A3B8;
+    }
+
+    /* CHIP SELECTORS */
+    .descriptors-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .attr-chip {
+      background: #F1F5F9;
+      border: 2px solid transparent;
+      padding: 6px 12px;
+      border-radius: 14px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #475569;
+      cursor: pointer;
+      transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .attr-chip:active {
+      transform: scale(0.95);
+    }
+
+    /* Color semantics for chips */
+    .attr-chip.vowel.active {
+      background: #FEE2E2;
+      color: #DC2626;
+      border-color: #F87171;
+    }
+
+    .attr-chip.consonant.active {
+      background: #E0E7FF;
+      color: #4338CA;
+      border-color: #818CF8;
+    }
+
+    .attr-chip.voice-ringing.active {
+      background: #FEF3C7;
+      color: #B45309;
+      border-color: #FBBF24;
+    }
+
+    .attr-chip.voice-deaf.active {
+      background: #E2E8F0;
+      color: #334155;
+      border-color: #94A3B8;
+    }
+
+    .attr-chip.paired.active {
+      background: #EDE9FE;
+      color: #6D28D9;
+      border-color: #A78BFA;
+    }
+
+    .attr-chip.hard.active {
+      background: #DBEAFE;
+      color: #1E40AF;
+      border-color: #60A5FA;
+    }
+
+    .attr-chip.soft.active {
+      background: #D1FAE5;
+      color: #065F46;
+      border-color: #34D399;
+    }
+
+    /* SUMMARY FOOTER */
+    .footer-summary-deck {
+      margin-top: 10px;
+      background: #FFFFFF;
+      border-top: 3px dashed #CBD5E1;
+      padding: 24px 0 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .summary-math-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 16px;
+      background: #F8FAFC;
+      padding: 16px;
+      border-radius: 20px;
+      border: 2px solid #E2E8F0;
+    }
+
+    .math-input-unit {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #1E293B;
+    }
+
+    .math-input-unit input {
+      width: 64px;
+      height: 52px;
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: 900;
+      border-radius: 14px;
+      border: 2px solid #CBD5E1;
+      background: #FFFFFF;
+      outline: none;
+      color: var(--accent-blue);
+      transition: all 0.2s ease;
+    }
+
+    .math-input-unit input:focus {
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.15);
+    }
+
+    .action-button-row {
+      display: flex;
+      gap: 16px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .btn-verify {
+      background: linear-gradient(135deg, #38B000, #2B8A00);
+      color: white;
+      border: none;
+      padding: 16px 32px;
+      border-radius: 18px;
+      font-size: 1.15rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(56, 176, 0, 0.3);
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-verify:active {
+      transform: scale(0.96);
+    }
+
+    .btn-reset {
+      background: #F1F5F9;
+      color: #475569;
+      border: 2px solid #CBD5E1;
+      padding: 16px 26px;
+      border-radius: 18px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-reset:hover {
+      background: #E2E8F0;
+    }
+
+    /* RIGHT COLUMN: OWL TEACHER & ASSISTANT */
+    .assistant-column {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .owl-card {
+      background: #FFFFFF;
+      border-radius: 28px;
+      padding: 24px;
+      border: 2px solid var(--card-border);
+      box-shadow: var(--soft-shadow);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: sticky;
+      top: 96px;
+      overflow: hidden;
+    }
+
+    .speech-bubble {
+      background: #EFF6FF;
+      border: 2px solid #BFDBFE;
+      border-radius: 20px;
+      padding: 16px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #1E3A8A;
+      position: relative;
+      margin-bottom: 20px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(58, 134, 255, 0.08);
+      min-height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .speech-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 12px 10px 0;
+      border-style: solid;
+      border-color: #EFF6FF transparent;
+      display: block;
+      width: 0;
+    }
+
+    .speech-bubble::before {
+      content: '';
+      position: absolute;
+      bottom: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 13px 11px 0;
+      border-style: solid;
+      border-color: #BFDBFE transparent;
+      display: block;
+      width: 0;
+    }
+
+    /* SVG OWL ANIMATIONS */
+    .owl-stage {
+      width: 220px;
+      height: 220px;
+    }
+
+    @keyframes owl-breathe {
+      0%, 100% { transform: translateY(0px) scale(1); }
+      50% { transform: translateY(-4px) scale(1.01); }
+    }
+
+    @keyframes owl-blink {
+      0%, 96%, 100% { transform: scaleY(1); }
+      98% { transform: scaleY(0.08); }
+    }
+
+    @keyframes owl-wing-flap {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(-8deg); }
+    }
+
+    .owl-body-group {
+      animation: owl-breathe 4s ease-in-out infinite;
+      transform-origin: center bottom;
+    }
+
+    .owl-pupil {
+      animation: owl-blink 4.5s ease-in-out infinite;
+      transform-origin: center;
+    }
+
+    .owl-wing-left {
+      animation: owl-wing-flap 3s ease-in-out infinite;
+      transform-origin: 45px 125px;
+    }
+
+    .legend-card-mini {
+      background: #F8FAFC;
+      border-radius: 20px;
+      padding: 16px;
+      width: 100%;
+      border: 2px solid #E2E8F0;
+      margin-top: 16px;
+      font-size: 0.85rem;
+    }
+
+    .legend-title {
+      font-weight: 800;
+      color: #334155;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      color: #64748B;
+      font-weight: 600;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .color-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    /* ON-SCREEN SOUND KEYBOARD MODAL */
+    .sound-keypad-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .sound-keypad-overlay.open {
+      display: flex;
+    }
+
+    .sound-keypad-window {
+      background: #FFFFFF;
+      border-radius: 32px;
+      padding: 28px;
+      width: 100%;
+      max-width: 620px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      border: 3px solid #E2E8F0;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      animation: popIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .keypad-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .keypad-header h3 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #1E293B;
+    }
+
+    .btn-close-keypad {
+      background: #F1F5F9;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-size: 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .keypad-category-label {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: #64748B;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .key-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+    }
+
+    .key-btn {
+      height: 54px;
+      border-radius: 16px;
+      border: 2px solid transparent;
+      font-size: 1.4rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .key-btn:active {
+      transform: scale(0.92);
+    }
+
+    .key-btn.vowel-key {
+      background: #FEE2E2;
+      color: #B91C1C;
+      border-color: #FECACA;
+    }
+
+    .key-btn.consonant-key {
+      background: #EFF6FF;
+      color: #1D4ED8;
+      border-color: #DBEAFE;
+    }
+
+    .key-btn.modifier-key {
+      background: #FEF3C7;
+      color: #B45309;
+      border-color: #FDE68A;
+      font-size: 1.6rem;
+    }
+
+    .key-btn.clear-key {
+      background: #F1F5F9;
+      color: #475569;
+      border-color: #CBD5E1;
+      font-size: 1.1rem;
+    }
+
+    /* CHEAT-SHEET MODAL (ПАМЯТКА) */
+    .cheatsheet-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.5);
+      backdrop-filter: blur(5px);
+      z-index: 110;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .cheatsheet-overlay.open {
+      display: flex;
+    }
+
+    .cheatsheet-dialog {
+      background: #FFFFFF;
+      border-radius: 32px;
+      padding: 32px;
+      max-width: 780px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+      border: 3px solid #E2E8F0;
+      animation: popIn 0.25s ease-out;
+    }
+
+    .cheatsheet-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 680px) {
+      .cheatsheet-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .cheat-box {
+      background: #F8FAFC;
+      border: 2px solid #E2E8F0;
+      border-radius: 20px;
+      padding: 16px 20px;
+    }
+
+    .cheat-box h4 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cheat-box p, .cheat-box li {
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: #475569;
+      font-weight: 600;
+    }
+
+    .cheat-box ul {
+      padding-left: 18px;
+    }
+
+    /* CONFETTI CANVAS OVERLAY */
+    #confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BENTO BAR -->
+  <header>
+    <div class="brand-section">
+      <div class="app-icon">🦉</div>
+      <div class="brand-title">
+        <h1>Звуко-буквенный тренажёр</h1>
+        <p>Фонетический разбор слова</p>
+      </div>
+    </div>
+
+    <div class="word-input-group">
+      <select id="word-select" title="Выбрать готовое слово" onchange="window.app.selectPresetWord(this.value)">
+        <option value="" disabled selected>Словарь 📚</option>
+        <option value="маяк">маяк (2 слога, я=2 зв.)</option>
+        <option value="юла">юла (2 слога, ю=2 зв.)</option>
+        <option value="конь">конь (1 слог, ь)</option>
+        <option value="ёлка">ёлка (2 слога, ё=2 зв.)</option>
+        <option value="весна">весна (2 слога)</option>
+        <option value="ноябрь">ноябрь (2 слога, я=2 зв.)</option>
+        <option value="подъезд">подъезд (2 слога, ъ)</option>
+        <option value="чашка">чашка (2 слога, ч всегда мягк.)</option>
+        <option value="ёжик">ёжик (2 слога)</option>
+        <option value="вьюга">вьюга (2 слога, ь)</option>
+      </select>
+      <input type="text" id="word-input" placeholder="слово..." maxlength="15" autocomplete="off" autocorrect="off">
+      <button class="btn-parse" onclick="window.app.loadCustomWord()">
+        Разобрать 🚀
+      </button>
+    </div>
+
+    <div class="header-actions">
+      <div class="mode-pill">
+        <button class="mode-btn active" id="mode-student" onclick="window.app.setMode('student')">🎒 Ученик</button>
+        <button class="mode-btn" id="mode-teacher" onclick="window.app.setMode('teacher')">👩‍🏫 Учитель</button>
+      </div>
+
+      <button class="icon-action-btn" title="Шпаргалка с правилами" onclick="window.app.toggleCheatSheet(true)">
+        📖
+      </button>
+
+      <button class="icon-action-btn" id="sound-toggle-btn" title="Звук Вкл/Выкл" onclick="window.app.toggleAudio()">
+        🔔
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN STUDY BOARD -->
+  <main>
+    <div class="board-container">
+      
+      <!-- HORIZONTAL WORD PLATFORM (Syllables & Stress) -->
+      <section class="bento-card word-interactive-deck">
+        <div class="deck-controls">
+          <button class="tool-btn" id="stress-tool-btn" onclick="window.app.toggleStressTool()">
+            <span>Ударение</span> <strong style="font-size:1.3rem; color:var(--accent-coral)">´</strong>
+          </button>
+          <div class="syllable-counter-badge" id="syllable-badge">
+            Слогов: <span id="syllable-count-val">0</span>
+          </div>
+        </div>
+
+        <!-- Dynamic Letter and Splitter row -->
+        <div class="syllable-display-track" id="syllable-track">
+          <!-- Populated by JS -->
+        </div>
+
+        <div style="font-size: 0.9rem; color: #64748B; font-weight: 700;">
+          💡 Кликните между буквами, чтобы разделить на слоги | Нажмите «Ударение», затем на гласную
+        </div>
+      </section>
+
+      <!-- VERTICAL LETTER ANALYSIS -->
+      <section class="bento-card vertical-analysis-deck">
+        <div class="section-headline">
+          <h2>📝 Пошаговый звуко-буквенный анализ</h2>
+          <div class="teacher-tools" id="teacher-toolbar">
+            <button class="teacher-action-btn" onclick="window.app.teacherSolveAll()">✅ Заполнить эталон</button>
+            <button class="teacher-action-btn" onclick="window.app.teacherClearHints()">🧹 Очистить</button>
+          </div>
+        </div>
+
+        <div class="letter-breakdown-table" id="letters-table">
+          <!-- Rows dynamically generated -->
+        </div>
+
+        <!-- FOOTER MATH & CHECK -->
+        <div class="footer-summary-deck">
+          <div class="summary-math-row">
+            <div class="math-input-unit">
+              Букв: <input type="number" id="input-letters-count" min="0" max="25" placeholder="?">
+            </div>
+            <div class="math-input-unit">
+              Звуков: <input type="number" id="input-sounds-count" min="0" max="25" placeholder="?">
+            </div>
+          </div>
+
+          <div class="action-button-row">
+            <button class="btn-reset" onclick="window.app.resetCurrentWord()">
+              🔄 Начать заново
+            </button>
+            <button class="btn-verify" onclick="window.app.verifySolution()">
+              <span>Проверить разбор</span> ✨
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- RIGHT COLUMN: OWL TEACHER -->
+    <aside class="assistant-column">
+      <div class="owl-card">
+        <div class="speech-bubble" id="owl-speech">
+          Привет! Выбери слово или введи своё, и начнём разбор! 🌟
+        </div>
+
+        <!-- Vector Animated Owl -->
+        <div class="owl-stage">
+          <svg viewBox="0 0 200 200" width="100%" height="100%">
+            <!-- Shadow -->
+            <ellipse cx="100" cy="188" rx="60" ry="8" fill="#E2E8F0"/>
+            
+            <!-- Owl Body Group -->
+            <g class="owl-body-group">
+              <!-- Feet -->
+              <ellipse cx="80" cy="184" rx="10" ry="5" fill="#F59E0B"/>
+              <ellipse cx="120" cy="184" rx="10" ry="5" fill="#F59E0B"/>
+
+              <!-- Torso -->
+              <path d="M50,110 C50,60 150,60 150,110 C150,165 140,185 100,185 C60,185 50,165 50,110 Z" fill="#6366F1"/>
+              
+              <!-- Belly -->
+              <ellipse cx="100" cy="135" rx="36" ry="40" fill="#EEF2FF"/>
+              <!-- Belly feathers pattern -->
+              <path d="M90,120 Q100,128 110,120 M85,135 Q100,145 115,135 M90,150 Q100,158 110,150" stroke="#C7D2FE" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+              <!-- Owl Ears / Tuft -->
+              <polygon points="60,75 75,40 90,68" fill="#4F46E5"/>
+              <polygon points="140,75 125,40 110,68" fill="#4F46E5"/>
+
+              <!-- Wings -->
+              <path class="owl-wing-left" d="M52,100 Q30,130 52,160 Q65,130 52,100 Z" fill="#4338CA"/>
+              <path d="M148,100 Q170,130 148,160 Q135,130 148,100 Z" fill="#4338CA"/>
+
+              <!-- Big Eyes Outer -->
+              <circle cx="78" cy="95" r="22" fill="#FFFFFF" stroke="#312E81" stroke-width="4"/>
+              <circle cx="122" cy="95" r="22" fill="#FFFFFF" stroke="#312E81" stroke-width="4"/>
+
+              <!-- Eyeglasses frame -->
+              <circle cx="78" cy="95" r="24" fill="none" stroke="#F59E0B" stroke-width="5"/>
+              <circle cx="122" cy="95" r="24" fill="none" stroke="#F59E0B" stroke-width="5"/>
+              <line x1="102" y1="95" x2="98" y2="95" stroke="#F59E0B" stroke-width="5"/>
+              <line x1="54" y1="92" x2="44" y2="86" stroke="#F59E0B" stroke-width="4"/>
+              <line x1="146" y1="92" x2="156" y2="86" stroke="#F59E0B" stroke-width="4"/>
+
+              <!-- Pupils with blinking animation -->
+              <g class="owl-pupil">
+                <circle cx="82" cy="95" r="9" fill="#1E1B4B"/>
+                <circle cx="79" cy="92" r="3.5" fill="#FFFFFF"/>
+                <circle cx="126" cy="95" r="9" fill="#1E1B4B"/>
+                <circle cx="123" cy="92" r="3.5" fill="#FFFFFF"/>
+              </g>
+
+              <!-- Beak -->
+              <polygon points="94,106 106,106 100,120" fill="#F59E0B"/>
+
+              <!-- Teacher Graduation Cap -->
+              <polygon points="100,28 150,42 100,56 50,42" fill="#1E1B4B"/>
+              <rect x="85" y="47" width="30" height="12" rx="4" fill="#312E81"/>
+              <!-- Tassel -->
+              <path d="M100,42 L142,58 L144,72" stroke="#F59E0B" stroke-width="3" fill="none"/>
+              <circle cx="144" cy="74" r="3.5" fill="#F59E0B"/>
+            </g>
+          </svg>
+        </div>
+
+        <div class="legend-card-mini">
+          <div class="legend-title">🎨 Памятка по цветам:</div>
+          <div class="legend-list">
+            <div class="legend-item"><div class="color-dot" style="background:#EF4444;"></div> Красный — гласные</div>
+            <div class="legend-item"><div class="color-dot" style="background:#2563EB;"></div> Синий — твёрдые согласные</div>
+            <div class="legend-item"><div class="color-dot" style="background:#10B981;"></div> Зелёный — мягкие согласные</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- ON-SCREEN SOUND KEYBOARD POPUP -->
+  <div class="sound-keypad-overlay" id="sound-modal">
+    <div class="sound-keypad-window">
+      <div class="keypad-header">
+        <h3>Выберите звук [ ... ]</h3>
+        <button class="btn-close-keypad" onclick="window.app.closeSoundKeypad()">✕</button>
+      </div>
+
+      <div>
+        <div class="keypad-category-label">Гласные звуки:</div>
+        <div class="key-grid">
+          <button class="key-btn vowel-key" onclick="window.app.applySoundFromKeypad('а')">а</button>
+          <button class="key-btn vowel-key" onclick="window.app.applySoundFromKeypad('о')">о</button>
+          <button class="key-btn vowel-key" onclick="window.app.applySoundFromKeypad('у')">у</button>
+          <button class="key-btn vowel-key" onclick="window.app.applySoundFromKeypad('ы')">ы</button>
+          <button class="key-btn vowel-key" onclick="window.app.applySoundFromKeypad('и')">и</button>
+          <button class="key-btn vowel-key" onclick="window.app.applySoundFromKeypad('э')">э</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="keypad-category-label">Согласные звуки:</div>
+        <div class="key-grid" style="grid-template-columns: repeat(7, 1fr);">
+          <button class="key-btn consonant-key" onclick="window.app.applySoundFromKeypad('б')">б</button>
+          <button class="key-btn consonant-key" onclick="window.app.applySoundFromKeypad('в')">в</button>
+          <button class="key-btn consonant-key" onclick="window.app.applySoundFromKeypad('г')">г</button>
+          <button class="key-btn consonant-key" onclick="window.app.applySoundFromKeypad('д')">д</button>
+          <button class="key-btn consonant-key" onclick="window.app.applySoundFromKeypad('ж')">ж</button>
+          <button class="key-btn consonant-key" onclick="window.app.applySoundFromKeypad('з')">з</button>
+          <button class="key-btn consonant-key" onclick="window.app.applySoundFromKeypad('й')">й</button>
+
+          <button class="key-btn consonant-key" onclick="window.app.applySoundFromKeypad('к')">к</button>
+          <button class="key-btn consonant-key" onclick="window.app.applySoundFromKeypad('л')">л</button>
+          <button class="key-btn consonant-key" onclick="window.app.applySoundFromKeypad('м')">м</button>
+          <button class="key-btn consonant-key" onclick="window.app.applySoundFromKeypad('н')">н</button>
+          <button class="key-btn consonant-key" onclick="window.app.applySoundFromKeypad('п')">п</button>
+          <button class="key-btn consonant-key" onclick="window.app.applySoundFromKeypad('р')">р</button>
+          <button class="key-btn consonant-key" onclick="window.app.applySoundFromKeypad('с')">с</button>
+
+          <button class="key-btn consonant-key" onclick="window.app.applySoundFromKeypad('т')">т</button>
+          <button class="key-btn consonant-key" onclick="window.app.applySoundFromKeypad('ф')">ф</button>
+          <button class="key-btn consonant-key" onclick="window.app.applySoundFromKeypad('х')">х</button>
+          <button class="key-btn consonant-key" onclick="window.app.applySoundFromKeypad('ц')">ц</button>
+          <button class="key-btn consonant-key" onclick="window.app.applySoundFromKeypad('ч')">ч</button>
+          <button class="key-btn consonant-key" onclick="window.app.applySoundFromKeypad('ш')">ш</button>
+          <button class="key-btn consonant-key" onclick="window.app.applySoundFromKeypad('щ')">щ</button>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:12px;">
+        <button class="key-btn modifier-key" style="flex:2;" onclick="window.app.appendApostrophe()">
+          [ ' ] Мягкость
+        </button>
+        <button class="key-btn clear-key" style="flex:1;" onclick="window.app.clearKeypadSound()">
+          Очистить
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHEAT-SHEET MODAL (ПАМЯТКА) -->
+  <div class="cheatsheet-overlay" id="cheatsheet-modal" onclick="if(event.target===this) window.app.toggleCheatSheet(false)">
+    <div class="cheatsheet-dialog">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h2 style="font-size:1.6rem; color:#1E293B;">📖 Шпаргалка по фонетике</h2>
+        <button class="btn-close-keypad" onclick="window.app.toggleCheatSheet(false)">✕</button>
+      </div>
+
+      <div class="cheatsheet-grid">
+        <div class="cheat-box">
+          <h4>🔨 Всегда твёрдые согласные:</h4>
+          <p><strong style="font-size:1.2rem; color:#1E40AF;">[ ж ], [ ц ], [ ш ]</strong></p>
+          <p style="margin-top:6px; font-size:0.85rem;">Они никогда не бывают мягкими, даже если после них стоят гласные И, Е, Ё, Ю, Я или Ь.</p>
+        </div>
+
+        <div class="cheat-box">
+          <h4>☁️ Всегда мягкие согласные:</h4>
+          <p><strong style="font-size:1.2rem; color:#059669;">[ й' ], [ ч' ], [ щ' ]</strong></p>
+          <p style="margin-top:6px; font-size:0.85rem;">Они всегда произносятся мягко и всегда имеют апостроф мягкости.</p>
+        </div>
+
+        <div class="cheat-box">
+          <h4>🔔 / 🔇 Парные по звонкости-глухости:</h4>
+          <ul style="margin-top:6px;">
+            <li><strong>б — п</strong></li>
+            <li><strong>в — ф</strong></li>
+            <li><strong>г — к</strong></li>
+            <li><strong>д — т</strong></li>
+            <li><strong>ж — ш</strong></li>
+            <li><strong>з — с</strong></li>
+          </ul>
+        </div>
+
+        <div class="cheat-box">
+          <h4>✨ Хитрости букв Е, Ё, Ю, Я:</h4>
+          <p>Дают <strong>2 звука</strong> ([й'э], [й'о], [й'у], [й'а]) только в 3 случаях:</p>
+          <ul style="margin-top:6px;">
+            <li>В самом начале слова (<em><strong>я</strong>блоко</em>);</li>
+            <li>После гласной буквы (<em>ма<strong>я</strong>к</em>);</li>
+            <li>После разделительных <strong>Ъ</strong> и <strong>Ь</strong> (<em>в<strong>ь</strong>юга</em>).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confetti Canvas -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <script>
+    /**
+     * DATABASE OF PREPARED WORDS AND REFERENCE PHONETIC DATA
+     */
+    const PHONETIC_PRESETS = {
+      "маяк": {
+        word: "маяк",
+        syllables: ["ма", "як"], // split index after pos 2
+        syllableSplits: [2],
+        accentIndex: 3, // index of vowel letter with stress ('я')
+        letters: [
+          { char: "м", sounds: [{ sound: "м", type: "consonant", voice: "звонкий", voicePair: "непарный", hardSoft: "твёрдый", hardSoftPair: "парный" }] },
+          { char: "а", sounds: [{ sound: "а", type: "vowel", stress: "безударный" }] },
+          { 
+            char: "я", 
+            isDual: true,
+            sounds: [
+              { sound: "й'", type: "consonant", voice: "звонкий", voicePair: "непарный", hardSoft: "мягкий", hardSoftPair: "непарный" },
+              { sound: "а", type: "vowel", stress: "ударный" }
+            ]
+          },
+          { char: "к", sounds: [{ sound: "к", type: "consonant", voice: "глухой", voicePair: "парный", hardSoft: "твёрдый", hardSoftPair: "парный" }] }
+        ]
+      },
+      "юла": {
+        word: "юла",
+        syllables: ["ю", "ла"],
+        syllableSplits: [1],
+        accentIndex: 2, // 'а'
+        letters: [
+          { 
+            char: "ю", 
+            isDual: true,
+            sounds: [
+              { sound: "й'", type: "consonant", voice: "звонкий", voicePair: "непарный", hardSoft: "мягкий", hardSoftPair: "непарный" },
+              { sound: "у", type: "vowel", stress: "безударный" }
+            ]
+          },
+          { char: "л", sounds: [{ sound: "л", type: "consonant", voice: "звонкий", voicePair: "непарный", hardSoft: "твёрдый", hardSoftPair: "парный" }] },
+          { char: "а", sounds: [{ sound: "а", type: "vowel", stress: "ударный" }] }
+        ]
+      },
+      "конь": {
+        word: "конь",
+        syllables: ["конь"],
+        syllableSplits: [],
+        accentIndex: 1, // 'о'
+        letters: [
+          { char: "к", sounds: [{ sound: "к", type: "consonant", voice: "глухой", voicePair: "парный", hardSoft: "твёрдый", hardSoftPair: "парный" }] },
+          { char: "о", sounds: [{ sound: "о", type: "vowel", stress: "ударный" }] },
+          { char: "н", sounds: [{ sound: "н'", type: "consonant", voice: "звонкий", voicePair: "непарный", hardSoft: "мягкий", hardSoftPair: "парный" }] },
+          { char: "ь", isSilent: true, sounds: [] }
+        ]
+      },
+      "ёлка": {
+        word: "ёлка",
+        syllables: ["ёл", "ка"],
+        syllableSplits: [2],
+        accentIndex: 0, // 'ё'
+        letters: [
+          { 
+            char: "ё", 
+            isDual: true,
+            sounds: [
+              { sound: "й'", type: "consonant", voice: "звонкий", voicePair: "непарный", hardSoft: "мягкий", hardSoftPair: "непарный" },
+              { sound: "о", type: "vowel", stress: "ударный" }
+            ]
+          },
+          { char: "л", sounds: [{ sound: "л", type: "consonant", voice: "звонкий", voicePair: "непарный", hardSoft: "твёрдый", hardSoftPair: "парный" }] },
+          { char: "к", sounds: [{ sound: "к", type: "consonant", voice: "глухой", voicePair: "парный", hardSoft: "твёрдый", hardSoftPair: "парный" }] },
+          { char: "а", sounds: [{ sound: "а", type: "vowel", stress: "безударный" }] }
+        ]
+      },
+      "весна": {
+        word: "весна",
+        syllables: ["вес", "на"],
+        syllableSplits: [3],
+        accentIndex: 4, // 'а'
+        letters: [
+          { char: "в", sounds: [{ sound: "в'", type: "consonant", voice: "звонкий", voicePair: "парный", hardSoft: "мягкий", hardSoftPair: "парный" }] },
+          { char: "е", sounds: [{ sound: "и", type: "vowel", stress: "безударный" }] },
+          { char: "с", sounds: [{ sound: "с", type: "consonant", voice: "глухой", voicePair: "парный", hardSoft: "твёрдый", hardSoftPair: "парный" }] },
+          { char: "н", sounds: [{ sound: "н", type: "consonant", voice: "звонкий", voicePair: "непарный", hardSoft: "твёрдый", hardSoftPair: "парный" }] },
+          { char: "а", sounds: [{ sound: "а", type: "vowel", stress: "ударный" }] }
+        ]
+      },
+      "ноябрь": {
+        word: "ноябрь",
+        syllables: ["но", "ябрь"],
+        syllableSplits: [2],
+        accentIndex: 3, // 'я'
+        letters: [
+          { char: "н", sounds: [{ sound: "н", type: "consonant", voice: "звонкий", voicePair: "непарный", hardSoft: "твёрдый", hardSoftPair: "парный" }] },
+          { char: "о", sounds: [{ sound: "а", type: "vowel", stress: "безударный" }] },
+          { 
+            char: "я", 
+            isDual: true,
+            sounds: [
+              { sound: "й'", type: "consonant", voice: "звонкий", voicePair: "непарный", hardSoft: "мягкий", hardSoftPair: "непарный" },
+              { sound: "а", type: "vowel", stress: "ударный" }
+            ]
+          },
+          { char: "б", sounds: [{ sound: "п", type: "consonant", voice: "глухой", voicePair: "парный", hardSoft: "твёрдый", hardSoftPair: "парный" }] },
+          { char: "р", sounds: [{ sound: "р'", type: "consonant", voice: "звонкий", voicePair: "непарный", hardSoft: "мягкий", hardSoftPair: "парный" }] },
+          { char: "ь", isSilent: true, sounds: [] }
+        ]
+      },
+      "подъезд": {
+        word: "подъезд",
+        syllables: ["подъ", "езд"],
+        syllableSplits: [4],
+        accentIndex: 4, // 'е'
+        letters: [
+          { char: "п", sounds: [{ sound: "п", type: "consonant", voice: "глухой", voicePair: "парный", hardSoft: "твёрдый", hardSoftPair: "парный" }] },
+          { char: "о", sounds: [{ sound: "а", type: "vowel", stress: "безударный" }] },
+          { char: "д", sounds: [{ sound: "т", type: "consonant", voice: "глухой", voicePair: "парный", hardSoft: "твёрдый", hardSoftPair: "парный" }] },
+          { char: "ъ", isSilent: true, sounds: [] },
+          { 
+            char: "е", 
+            isDual: true,
+            sounds: [
+              { sound: "й'", type: "consonant", voice: "звонкий", voicePair: "непарный", hardSoft: "мягкий", hardSoftPair: "непарный" },
+              { sound: "э", type: "vowel", stress: "ударный" }
+            ]
+          },
+          { char: "з", sounds: [{ sound: "с", type: "consonant", voice: "глухой", voicePair: "парный", hardSoft: "твёрдый", hardSoftPair: "парный" }] },
+          { char: "д", sounds: [{ sound: "т", type: "consonant", voice: "глухой", voicePair: "парный", hardSoft: "твёрдый", hardSoftPair: "парный" }] }
+        ]
+      },
+      "чашка": {
+        word: "чашка",
+        syllables: ["чаш", "ка"],
+        syllableSplits: [3],
+        accentIndex: 1, // 'а'
+        letters: [
+          { char: "ч", sounds: [{ sound: "ч'", type: "consonant", voice: "глухой", voicePair: "непарный", hardSoft: "мягкий", hardSoftPair: "непарный" }] },
+          { char: "а", sounds: [{ sound: "а", type: "vowel", stress: "ударный" }] },
+          { char: "ш", sounds: [{ sound: "ш", type: "consonant", voice: "глухой", voicePair: "парный", hardSoft: "твёрдый", hardSoftPair: "непарный" }] },
+          { char: "к", sounds: [{ sound: "к", type: "consonant", voice: "глухой", voicePair: "парный", hardSoft: "твёрдый", hardSoftPair: "парный" }] },
+          { char: "а", sounds: [{ sound: "а", type: "vowel", stress: "безударный" }] }
+        ]
+      },
+      "ёжик": {
+        word: "ёжик",
+        syllables: ["ё", "жик"],
+        syllableSplits: [1],
+        accentIndex: 0,
+        letters: [
+          { 
+            char: "ё", 
+            isDual: true,
+            sounds: [
+              { sound: "й'", type: "consonant", voice: "звонкий", voicePair: "непарный", hardSoft: "мягкий", hardSoftPair: "непарный" },
+              { sound: "о", type: "vowel", stress: "ударный" }
+            ]
+          },
+          { char: "ж", sounds: [{ sound: "ж", type: "consonant", voice: "звонкий", voicePair: "парный", hardSoft: "твёрдый", hardSoftPair: "непарный" }] },
+          { char: "и", sounds: [{ sound: "ы", type: "vowel", stress: "безударный" }] },
+          { char: "к", sounds: [{ sound: "к", type: "consonant", voice: "глухой", voicePair: "парный", hardSoft: "твёрдый", hardSoftPair: "парный" }] }
+        ]
+      },
+      "вьюга": {
+        word: "вьюга",
+        syllables: ["вью", "га"],
+        syllableSplits: [3],
+        accentIndex: 2,
+        letters: [
+          { char: "в", sounds: [{ sound: "в'", type: "consonant", voice: "звонкий", voicePair: "парный", hardSoft: "мягкий", hardSoftPair: "парный" }] },
+          { char: "ь", isSilent: true, sounds: [] },
+          { 
+            char: "ю", 
+            isDual: true,
+            sounds: [
+              { sound: "й'", type: "consonant", voice: "звонкий", voicePair: "непарный", hardSoft: "мягкий", hardSoftPair: "непарный" },
+              { sound: "у", type: "vowel", stress: "ударный" }
+            ]
+          },
+          { char: "г", sounds: [{ sound: "г", type: "consonant", voice: "звонкий", voicePair: "парный", hardSoft: "твёрдый", hardSoftPair: "парный" }] },
+          { char: "а", sounds: [{ sound: "а", type: "vowel", stress: "безударный" }] }
+        ]
+      }
+    };
+
+    const VOWEL_LETTERS = new Set(['а', 'е', 'ё', 'и', 'о', 'у', 'ы', 'э', 'ю', 'я']);
+    const DUAL_CAPABLE = new Set(['е', 'ё', 'ю', 'я']);
+    const SILENT_LETTERS = new Set(['ь', 'ъ']);
+    const ALWAYS_HARD = new Set(['ж', 'ц', 'ш']);
+    const ALWAYS_SOFT = new Set(['й', 'ч', 'щ']);
+    const PAIRED_VOICE = new Set(['б', 'п', 'в', 'ф', 'г', 'к', 'д', 'т', 'ж', 'ш', 'з', 'с']);
+
+    /**
+     * SOUND ENGINE (Pure Web Audio API)
+     */
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            this.ctx = new AudioContext();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      playBell() { // For ringing (звонкий) sounds
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, now); // A5
+        osc.frequency.exponentialRampToValueAtTime(1760, now + 0.08);
+
+        gain.gain.setValueAtTime(0.35, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.6);
+      }
+
+      playThud() { // For deaf (глухой) sounds
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(160, now);
+        osc.frequency.exponentialRampToValueAtTime(45, now + 0.12);
+
+        gain.gain.setValueAtTime(0.4, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.15);
+      }
+
+      playTap() { // Tactile pop for buttons
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.exponentialRampToValueAtTime(220, now + 0.05);
+
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.06);
+      }
+
+      playFanfare() { // Victory chord sequence
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C Major arpeggio
+        notes.forEach((freq, idx) => {
+          const startTime = this.ctx.currentTime + (idx * 0.12);
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, startTime);
+
+          gain.gain.setValueAtTime(0.3, startTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.6);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.start(startTime);
+          osc.stop(startTime + 0.6);
+        });
+      }
+    }
+
+    /**
+     * APP CORE LOGIC & STATE CONTROLLER
+     */
+    class PhoneticApp {
+      constructor() {
+        this.audio = new SoundEngine();
+        this.mode = 'student'; // 'student' | 'teacher'
+        this.stressModeActive = false;
+        
+        this.currentWord = "";
+        this.syllableSplits = new Set(); // index after which | is placed
+        this.stressedLetterIndex = null;
+
+        // User row analyses: array indexed by letter index
+        this.userRows = [];
+
+        // Active sound box being edited in the keypad
+        this.activeTarget = null; // { letterIdx, soundSubIdx }
+
+        this.initDOM();
+        this.loadPreset("маяк");
+      }
+
+      initDOM() {
+        this.syllableTrackEl = document.getElementById('syllable-track');
+        this.syllableCountValEl = document.getElementById('syllable-count-val');
+        this.stressToolBtn = document.getElementById('stress-tool-btn');
+        this.lettersTableEl = document.getElementById('letters-table');
+        this.owlSpeechEl = document.getElementById('owl-speech');
+        this.teacherToolbarEl = document.getElementById('teacher-toolbar');
+        this.inputLettersCountEl = document.getElementById('input-letters-count');
+        this.inputSoundsCountEl = document.getElementById('input-sounds-count');
+
+        // Setup Enter key on custom input
+        document.getElementById('word-input').addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') this.loadCustomWord();
+        });
+      }
+
+      setOwlPhrase(text) {
+        this.owlSpeechEl.innerText = text;
+      }
+
+      toggleAudio() {
+        this.audio.enabled = !this.audio.enabled;
+        const btn = document.getElementById('sound-toggle-btn');
+        btn.innerText = this.audio.enabled ? '🔔' : '🔕';
+        this.setOwlPhrase(this.audio.enabled ? "Звуки включены! 🎶" : "Звуки выключены 🤫");
+      }
+
+      setMode(newMode) {
+        this.mode = newMode;
+        document.getElementById('mode-student').classList.toggle('active', newMode === 'student');
+        document.getElementById('mode-teacher').classList.toggle('active', newMode === 'teacher');
+        this.teacherToolbarEl.classList.toggle('visible', newMode === 'teacher');
+        this.setOwlPhrase(newMode === 'teacher' ? "👩‍🏫 Режим учителя активен. Доступны подсказки!" : "🎒 Режим ученика. Попробуй разобрать слово сам!");
+      }
+
+      toggleStressTool() {
+        this.stressModeActive = !this.stressModeActive;
+        this.stressToolBtn.classList.toggle('active', this.stressModeActive);
+        this.audio.playTap();
+        if (this.stressModeActive) {
+          this.setOwlPhrase("🎯 Нажми на ударную гласную букву!");
+        } else {
+          this.setOwlPhrase("Режим ударения выключен.");
+        }
+      }
+
+      toggleCheatSheet(show) {
+        document.getElementById('cheatsheet-modal').classList.toggle('open', show);
+        this.audio.playTap();
+      }
+
+      selectPresetWord(word) {
+        if (!word) return;
+        document.getElementById('word-input').value = word;
+        this.loadWord(word.toLowerCase().trim());
+      }
+
+      loadCustomWord() {
+        const input = document.getElementById('word-input');
+        const val = input.value.toLowerCase().replace(/[^а-яё]/g, '').trim();
+        if (!val) {
+          this.setOwlPhrase("Пожалуйста, введи русское слово!");
+          return;
+        }
+        this.loadWord(val);
+      }
+
+      // Auto-generate phonetic default model for arbitrary Russian words
+      generateDefaultPhoneticModel(word) {
+        const letters = [];
+        let accentPos = null;
+
+        for (let i = 0; i < word.length; i++) {
+          const ch = word[i];
+          const isVowel = VOWEL_LETTERS.has(ch);
+          const isSilent = SILENT_LETTERS.has(ch);
+
+          // Find first vowel for fallback accent if single vowel
+          if (isVowel && accentPos === null) accentPos = i;
+
+          if (isSilent) {
+            letters.push({ char: ch, isSilent: true, sounds: [] });
+          } else if (DUAL_CAPABLE.has(ch)) {
+            // Check 3 conditions for 2 sounds
+            const prevChar = i > 0 ? word[i - 1] : null;
+            const givesTwo = (i === 0) || (prevChar && (VOWEL_LETTERS.has(prevChar) || SILENT_LETTERS.has(prevChar)));
+
+            if (givesTwo) {
+              const baseVowel = ch === 'е' ? 'э' : (ch === 'ё' ? 'о' : (ch === 'ю' ? 'у' : 'а'));
+              letters.push({
+                char: ch,
+                isDual: true,
+                sounds: [
+                  { sound: "й'", type: "consonant", voice: "звонкий", voicePair: "непарный", hardSoft: "мягкий", hardSoftPair: "непарный" },
+                  { sound: baseVowel, type: "vowel", stress: "ударный" }
+                ]
+              });
+            } else {
+              const baseVowel = ch === 'е' ? 'э' : (ch === 'ё' ? 'о' : (ch === 'ю' ? 'у' : 'а'));
+              letters.push({
+                char: ch,
+                sounds: [{ sound: baseVowel, type: "vowel", stress: "безударный" }]
+              });
+            }
+          } else if (isVowel) {
+            letters.push({
+              char: ch,
+              sounds: [{ sound: ch, type: "vowel", stress: "безударный" }]
+            });
+          } else {
+            // Consonant
+            const isHardOnly = ALWAYS_HARD.has(ch);
+            const isSoftOnly = ALWAYS_SOFT.has(ch);
+            const pairedVoice = PAIRED_VOICE.has(ch) ? "парный" : "непарный";
+
+            letters.push({
+              char: ch,
+              sounds: [{
+                sound: isSoftOnly ? ch + "'" : ch,
+                type: "consonant",
+                voice: "звонкий",
+                voicePair: pairedVoice,
+                hardSoft: isSoftOnly ? "мягкий" : "твёрдый",
+                hardSoftPair: (isHardOnly || isSoftOnly) ? "непарный" : "парный"
+              }]
+            });
+          }
+        }
+
+        return {
+          word: word,
+          syllables: [word],
+          syllableSplits: [],
+          accentIndex: accentPos ?? 0,
+          letters: letters
+        };
+      }
+
+      loadWord(word) {
+        this.currentWord = word;
+        this.model = PHONETIC_PRESETS[word] || this.generateDefaultPhoneticModel(word);
+        this.syllableSplits = new Set();
+        this.stressedLetterIndex = null;
+
+        // Initialize user row state
+        this.userRows = this.model.letters.map((letModel) => {
+          if (letModel.isSilent) {
+            return { isSilent: true, sounds: [] };
+          }
+          if (letModel.isDual) {
+            return {
+              isDual: true,
+              sounds: [
+                { sound: "", type: "consonant", voice: null, voicePair: null, hardSoft: null, hardSoftPair: null },
+                { sound: "", type: "vowel", stress: null }
+              ]
+            };
+          }
+          const defaultType = VOWEL_LETTERS.has(letModel.char) ? "vowel" : "consonant";
+          return {
+            isDual: false,
+            sounds: [
+              { sound: "", type: defaultType, voice: null, voicePair: null, hardSoft: null, hardSoftPair: null, stress: null }
+            ]
+          };
+        });
+
+        this.inputLettersCountEl.value = "";
+        this.inputSoundsCountEl.value = "";
+
+        this.renderHorizontalTrack();
+        this.renderLetterRows();
+        this.updateSyllableCountBadge();
+        this.setOwlPhrase(`Слово «${word}» загружено! Раздели его на слоги и поставь ударение.`);
+      }
+
+      renderHorizontalTrack() {
+        this.syllableTrackEl.innerHTML = '';
+        const chars = this.currentWord.split('');
+
+        chars.forEach((char, idx) => {
+          const isVowel = VOWEL_LETTERS.has(char);
+          const isConsonant = !isVowel && !SILENT_LETTERS.has(char);
+
+          const node = document.createElement('div');
+          node.className = 'letter-node-box';
+
+          const tile = document.createElement('div');
+          tile.className = `letter-tile ${isVowel ? 'is-vowel' : ''} ${isConsonant ? 'is-consonant' : ''}`;
+          if (this.stressedLetterIndex === idx) tile.classList.add('has-accent');
+
+          const accentMark = document.createElement('div');
+          accentMark.className = 'accent-mark';
+          accentMark.innerText = '´';
+          tile.appendChild(accentMark);
+
+          const charSpan = document.createElement('span');
+          charSpan.innerText = char;
+          tile.appendChild(charSpan);
+
+          // Tile click handler: Stress setting
+          tile.addEventListener('click', () => {
+            if (this.stressModeActive) {
+              if (isVowel) {
+                if (this.stressedLetterIndex === idx) {
+                  this.stressedLetterIndex = null;
+                } else {
+                  this.stressedLetterIndex = idx;
+                  this.audio.playBell();
+                }
+                this.renderHorizontalTrack();
+              } else {
+                this.setOwlPhrase("Ударение падает только на гласные буквы! 🍎");
+                this.audio.playThud();
+              }
+            } else {
+              this.audio.playTap();
+            }
+          });
+
+          node.appendChild(tile);
+
+          // Add syllable splitter button if not the last letter
+          if (idx < chars.length - 1) {
+            const splitPos = idx + 1;
+            const splitter = document.createElement('div');
+            splitter.className = `syllable-splitter ${this.syllableSplits.has(splitPos) ? 'active' : ''}`;
+            splitter.title = "Разделитель слогов";
+            splitter.addEventListener('click', () => {
+              this.toggleSyllableSplit(splitPos);
+            });
+            node.appendChild(splitter);
+          }
+
+          this.syllableTrackEl.appendChild(node);
+        });
+      }
+
+      toggleSyllableSplit(pos) {
+        if (this.syllableSplits.has(pos)) {
+          this.syllableSplits.delete(pos);
+        } else {
+          this.syllableSplits.add(pos);
+        }
+        this.audio.playTap();
+        this.renderHorizontalTrack();
+        this.updateSyllableCountBadge();
+      }
+
+      updateSyllableCountBadge() {
+        const syllableCount = this.syllableSplits.size + 1;
+        this.syllableCountValEl.innerText = syllableCount;
+      }
+
+      renderLetterRows() {
+        this.lettersTableEl.innerHTML = '';
+
+        this.model.letters.forEach((letModel, letterIdx) => {
+          const userState = this.userRows[letterIdx];
+          const rowCard = document.createElement('div');
+          rowCard.className = 'letter-row-card';
+          rowCard.id = `row-card-${letterIdx}`;
+
+          // Left Anchor with letter & split toggles
+          const anchorBlock = document.createElement('div');
+          anchorBlock.className = 'letter-anchor-block';
+
+          const charSpan = document.createElement('div');
+          charSpan.className = 'primary-char';
+          charSpan.innerText = letModel.char;
+          anchorBlock.appendChild(charSpan);
+
+          // Optional action buttons (2 sounds toggle, no sound toggle)
+          const togglesWrap = document.createElement('div');
+          togglesWrap.className = 'letter-mode-toggles';
+
+          if (DUAL_CAPABLE.has(letModel.char)) {
+            const dualBtn = document.createElement('button');
+            dualBtn.className = `mini-chip-toggle ${userState.isDual ? 'active' : ''}`;
+            dualBtn.innerText = '≺ 2 звука';
+            dualBtn.addEventListener('click', () => this.toggleDualSounds(letterIdx));
+            togglesWrap.appendChild(dualBtn);
+          }
+
+          if (SILENT_LETTERS.has(letModel.char)) {
+            const silentBtn = document.createElement('button');
+            silentBtn.className = `mini-chip-toggle ${userState.isSilent ? 'active' : ''}`;
+            silentBtn.innerText = '— нет звука';
+            silentBtn.addEventListener('click', () => this.toggleSilent(letterIdx));
+            togglesWrap.appendChild(silentBtn);
+          }
+
+          anchorBlock.appendChild(togglesWrap);
+          rowCard.appendChild(anchorBlock);
+
+          // Sub-sounds rows container
+          const subSoundsWrap = document.createElement('div');
+          subSoundsWrap.className = 'sub-sounds-container';
+
+          if (userState.isSilent) {
+            const silentRow = document.createElement('div');
+            silentRow.className = 'sound-entry-row';
+            const dashBox = document.createElement('div');
+            dashBox.className = 'sound-bracket-box no-sound';
+            dashBox.innerText = '[ — ]';
+            const label = document.createElement('span');
+            label.style.fontWeight = '700';
+            label.style.color = '#94A3B8';
+            label.innerText = 'не обозначает звука';
+            silentRow.appendChild(dashBox);
+            silentRow.appendChild(label);
+            subSoundsWrap.appendChild(silentRow);
+          } else {
+            userState.sounds.forEach((soundData, subIdx) => {
+              const sRow = this.createSoundSubRow(letterIdx, subIdx, soundData);
+              subSoundsWrap.appendChild(sRow);
+            });
+          }
+
+          rowCard.appendChild(subSoundsWrap);
+          this.lettersTableEl.appendChild(rowCard);
+        });
+      }
+
+      createSoundSubRow(letterIdx, subIdx, soundData) {
+        const row = document.createElement('div');
+        row.className = 'sound-entry-row';
+
+        // Sound Bracket Keypad Trigger
+        const bracket = document.createElement('div');
+        bracket.className = 'sound-bracket-box';
+        
+        let soundText = soundData.sound || '...';
+        bracket.innerText = `[ ${soundText} ]`;
+
+        if (soundData.sound) {
+          bracket.classList.add('filled');
+          if (soundData.type === 'vowel') bracket.classList.add('is-vowel');
+          else if (soundData.hardSoft === 'твёрдый') bracket.classList.add('is-hard');
+          else if (soundData.hardSoft === 'мягкий') bracket.classList.add('is-soft');
+        }
+
+        bracket.addEventListener('click', () => {
+          this.openSoundKeypad(letterIdx, subIdx);
+        });
+
+        row.appendChild(bracket);
+
+        // Descriptors chips container
+        const chipsWrap = document.createElement('div');
+        chipsWrap.className = 'descriptors-wrap';
+
+        // 1. General type chip: Гласный / Согласный
+        const vowelChip = this.createChip('гласный', 'vowel', soundData.type === 'vowel', () => {
+          soundData.type = 'vowel';
+          soundData.voice = null;
+          soundData.hardSoft = null;
+          this.renderLetterRows();
+        });
+        const consChip = this.createChip('согласный', 'consonant', soundData.type === 'consonant', () => {
+          soundData.type = 'consonant';
+          soundData.stress = null;
+          this.renderLetterRows();
+        });
+        chipsWrap.appendChild(vowelChip);
+        chipsWrap.appendChild(consChip);
+
+        // Conditional branch: Vowel attributes
+        if (soundData.type === 'vowel') {
+          const stressChip = this.createChip('ударный', 'vowel', soundData.stress === 'ударный', () => {
+            soundData.stress = 'ударный';
+            this.audio.playBell();
+            this.renderLetterRows();
+          });
+          const unstresChip = this.createChip('безударный', 'vowel', soundData.stress === 'безударный', () => {
+            soundData.stress = 'безударный';
+            this.audio.playThud();
+            this.renderLetterRows();
+          });
+          chipsWrap.appendChild(stressChip);
+          chipsWrap.appendChild(unstresChip);
+        }
+
+        // Conditional branch: Consonant attributes
+        if (soundData.type === 'consonant') {
+          // Voice: звонкий / глухой
+          const voiceChip = this.createChip('звонкий', 'voice-ringing', soundData.voice === 'звонкий', () => {
+            soundData.voice = 'звонкий';
+            this.audio.playBell();
+            this.renderLetterRows();
+          });
+          const deafChip = this.createChip('глухой', 'voice-deaf', soundData.voice === 'глухой', () => {
+            soundData.voice = 'глухой';
+            this.audio.playThud();
+            this.renderLetterRows();
+          });
+          chipsWrap.appendChild(voiceChip);
+          chipsWrap.appendChild(deafChip);
+
+          // Voice pair
+          if (soundData.voice) {
+            const vPair = this.createChip('парн.', 'paired', soundData.voicePair === 'парный', () => {
+              soundData.voicePair = 'парный';
+              this.audio.playTap();
+              this.renderLetterRows();
+            });
+            const vUnpair = this.createChip('непарн.', 'paired', soundData.voicePair === 'непарный', () => {
+              soundData.voicePair = 'непарный';
+              this.audio.playTap();
+              this.renderLetterRows();
+            });
+            chipsWrap.appendChild(vPair);
+            chipsWrap.appendChild(vUnpair);
+          }
+
+          // Hardness: твёрдый / мягкий
+          const hardChip = this.createChip('твёрдый', 'hard', soundData.hardSoft === 'твёрдый', () => {
+            soundData.hardSoft = 'твёрдый';
+            this.audio.playThud();
+            this.renderLetterRows();
+          });
+          const softChip = this.createChip('мягкий', 'soft', soundData.hardSoft === 'мягкий', () => {
+            soundData.hardSoft = 'мягкий';
+            this.audio.playBell();
+            this.renderLetterRows();
+          });
+          chipsWrap.appendChild(hardChip);
+          chipsWrap.appendChild(softChip);
+
+          // Hardness pair
+          if (soundData.hardSoft) {
+            const hPair = this.createChip('парн.', 'paired', soundData.hardSoftPair === 'парный', () => {
+              soundData.hardSoftPair = 'парный';
+              this.audio.playTap();
+              this.renderLetterRows();
+            });
+            const hUnpair = this.createChip('непарн.', 'paired', soundData.hardSoftPair === 'непарный', () => {
+              soundData.hardSoftPair = 'непарный';
+              this.audio.playTap();
+              this.renderLetterRows();
+            });
+            chipsWrap.appendChild(hPair);
+            chipsWrap.appendChild(hUnpair);
+          }
+        }
+
+        row.appendChild(chipsWrap);
+        return row;
+      }
+
+      createChip(label, themeClass, isActive, onClick) {
+        const chip = document.createElement('button');
+        chip.className = `attr-chip ${themeClass} ${isActive ? 'active' : ''}`;
+        chip.innerText = label;
+        chip.addEventListener('click', onClick);
+        return chip;
+      }
+
+      toggleDualSounds(letterIdx) {
+        const uRow = this.userRows[letterIdx];
+        uRow.isDual = !uRow.isDual;
+        if (uRow.isDual) {
+          uRow.sounds = [
+            { sound: "й'", type: "consonant", voice: "звонкий", voicePair: "непарный", hardSoft: "мягкий", hardSoftPair: "непарный" },
+            { sound: "", type: "vowel", stress: null }
+          ];
+          this.setOwlPhrase("Буква распалась на 2 звука: согласный [й'] и гласный!");
+        } else {
+          uRow.sounds = [
+            { sound: "", type: "vowel", stress: null }
+          ];
+        }
+        this.audio.playTap();
+        this.renderLetterRows();
+      }
+
+      toggleSilent(letterIdx) {
+        const uRow = this.userRows[letterIdx];
+        uRow.isSilent = !uRow.isSilent;
+        uRow.sounds = [];
+        this.audio.playTap();
+        this.renderLetterRows();
+      }
+
+      // KEYPAD POPUP LOGIC
+      openSoundKeypad(letterIdx, subIdx) {
+        this.activeTarget = { letterIdx, subIdx };
+        document.getElementById('sound-modal').classList.add('open');
+        this.audio.playTap();
+      }
+
+      closeSoundKeypad() {
+        document.getElementById('sound-modal').classList.remove('open');
+        this.activeTarget = null;
+      }
+
+      applySoundFromKeypad(char) {
+        if (!this.activeTarget) return;
+        const targetSound = this.userRows[this.activeTarget.letterIdx].sounds[this.activeTarget.subIdx];
+        targetSound.sound = char;
+
+        // Auto classify type
+        if (VOWEL_LETTERS.has(char)) {
+          targetSound.type = 'vowel';
+          this.audio.playBell();
+        } else {
+          targetSound.type = 'consonant';
+          if (ALWAYS_HARD.has(char)) {
+            targetSound.hardSoft = 'твёрдый';
+            targetSound.hardSoftPair = 'непарный';
+          } else if (ALWAYS_SOFT.has(char)) {
+            targetSound.sound = char + "'";
+            targetSound.hardSoft = 'мягкий';
+            targetSound.hardSoftPair = 'непарный';
+          }
+          this.audio.playTap();
+        }
+
+        this.closeSoundKeypad();
+        this.renderLetterRows();
+      }
+
+      appendApostrophe() {
+        if (!this.activeTarget) return;
+        const targetSound = this.userRows[this.activeTarget.letterIdx].sounds[this.activeTarget.subIdx];
+        if (targetSound.sound && !targetSound.sound.includes("'")) {
+          targetSound.sound += "'";
+          targetSound.hardSoft = 'мягкий';
+          this.audio.playBell();
+        }
+        this.closeSoundKeypad();
+        this.renderLetterRows();
+      }
+
+      clearKeypadSound() {
+        if (!this.activeTarget) return;
+        const targetSound = this.userRows[this.activeTarget.letterIdx].sounds[this.activeTarget.subIdx];
+        targetSound.sound = "";
+        this.closeSoundKeypad();
+        this.renderLetterRows();
+      }
+
+      // TEACHER TOOLS
+      teacherSolveAll() {
+        // Automatically fill everything according to reference model
+        this.syllableSplits = new Set(this.model.syllableSplits || []);
+        this.stressedLetterIndex = this.model.accentIndex;
+
+        this.userRows = JSON.parse(JSON.stringify(this.model.letters)).map(letMod => {
+          return {
+            isSilent: !!letMod.isSilent,
+            isDual: !!letMod.isDual,
+            sounds: letMod.sounds
+          };
+        });
+
+        const letterTotal = this.model.letters.length;
+        let soundTotal = 0;
+        this.model.letters.forEach(l => {
+          if (!l.isSilent) soundTotal += l.sounds.length;
+        });
+
+        this.inputLettersCountEl.value = letterTotal;
+        this.inputSoundsCountEl.value = soundTotal;
+
+        this.renderHorizontalTrack();
+        this.renderLetterRows();
+        this.updateSyllableCountBadge();
+        this.setOwlPhrase("Учитель показал эталонный разбор! Сравните со своими записями 🌟");
+        this.audio.playFanfare();
+      }
+
+      teacherClearHints() {
+        this.loadWord(this.currentWord);
+      }
+
+      resetCurrentWord() {
+        this.loadWord(this.currentWord);
+        this.setOwlPhrase("Всё очищено. Попробуй разобрать заново!");
+      }
+
+      // SOLUTION VALIDATION ENGINE
+      verifySolution() {
+        let isAllCorrect = true;
+        let errorFeedbacks = [];
+
+        // 1. Verify Syllable Division
+        const refSplits = new Set(this.model.syllableSplits || []);
+        let syllableMatch = (refSplits.size === this.syllableSplits.size);
+        if (syllableMatch) {
+          for (let s of refSplits) {
+            if (!this.syllableSplits.has(s)) {
+              syllableMatch = false;
+              break;
+            }
+          }
+        }
+        if (!syllableMatch) {
+          isAllCorrect = false;
+          errorFeedbacks.push("Проверь количество и границы слогов.");
+        }
+
+        // 2. Verify Accent
+        if (this.model.accentIndex !== null && this.model.accentIndex !== undefined) {
+          if (this.stressedLetterIndex !== this.model.accentIndex) {
+            isAllCorrect = false;
+            errorFeedbacks.push("Знак ударения поставлен неверно.");
+          }
+        }
+
+        // 3. Verify Each Letter Row
+        this.model.letters.forEach((refLetter, idx) => {
+          const rowCard = document.getElementById(`row-card-${idx}`);
+          const uRow = this.userRows[idx];
+          let rowOk = true;
+
+          if (refLetter.isSilent) {
+            if (!uRow.isSilent) rowOk = false;
+          } else {
+            if (refLetter.isDual && !uRow.isDual) rowOk = false;
+            if (refLetter.sounds.length !== uRow.sounds.length) {
+              rowOk = false;
+            } else {
+              refLetter.sounds.forEach((refS, sIdx) => {
+                const uS = uRow.sounds[sIdx];
+                if (!uS) {
+                  rowOk = false;
+                  return;
+                }
+                if (refS.sound && uS.sound !== refS.sound) rowOk = false;
+                if (refS.type !== uS.type) rowOk = false;
+                if (refS.type === 'vowel') {
+                  if (refS.stress && uS.stress !== refS.stress) rowOk = false;
+                } else if (refS.type === 'consonant') {
+                  if (refS.voice && uS.voice !== refS.voice) rowOk = false;
+                  if (refS.hardSoft && uS.hardSoft !== refS.hardSoft) rowOk = false;
+                }
+              });
+            }
+          }
+
+          if (rowCard) {
+            rowCard.classList.remove('correct-row', 'error-row');
+            if (rowOk) {
+              rowCard.classList.add('correct-row');
+            } else {
+              rowCard.classList.add('error-row');
+              isAllCorrect = false;
+            }
+          }
+        });
+
+        // 4. Verify Letter and Sound Totals
+        const userLetCount = parseInt(this.inputLettersCountEl.value, 10);
+        const userSndCount = parseInt(this.inputSoundsCountEl.value, 10);
+
+        const expectedLetters = this.model.letters.length;
+        let expectedSounds = 0;
+        this.model.letters.forEach(l => {
+          if (!l.isSilent) expectedSounds += l.sounds.length;
+        });
+
+        if (userLetCount !== expectedLetters || userSndCount !== expectedSounds) {
+          isAllCorrect = false;
+          errorFeedbacks.push("Пересчитай итоговое количество букв и звуков внизу.");
+        }
+
+        // Reaction
+        if (isAllCorrect) {
+          this.setOwlPhrase("УРА! Абсолютно верный фонетический разбор! Ты настоящий мастер звуков! 🏆🎉");
+          this.audio.playFanfare();
+          this.launchConfetti();
+        } else {
+          this.audio.playThud();
+          const hint = errorFeedbacks.length > 0 ? errorFeedbacks[0] : "Обрати внимание на выделенные красным строки!";
+          this.setOwlPhrase(`Почти получилось! 🧐 ${hint}`);
+        }
+      }
+
+      // PURE VANILLA CANVAS CONFETTI
+      launchConfetti() {
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const pieces = [];
+        const colors = ['#FF6B6B', '#3A86FF', '#38B000', '#FFB703', '#7209B7', '#4CC9F0'];
+
+        for (let i = 0; i < 90; i++) {
+          pieces.push({
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            r: Math.random() * 8 + 4,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            vx: (Math.random() - 0.5) * 16,
+            vy: (Math.random() - 0.7) * 16,
+            gravity: 0.35,
+            rotation: Math.random() * 360,
+            rotSpeed: (Math.random() - 0.5) * 10
+          });
+        }
+
+        let frames = 0;
+        function render() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          pieces.forEach(p => {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += p.gravity;
+            p.rotation += p.rotSpeed;
+
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rotation * Math.PI / 180);
+            ctx.fillStyle = p.color;
+            ctx.fillRect(-p.r, -p.r, p.r * 2, p.r);
+            ctx.restore();
+          });
+
+          frames++;
+          if (frames < 120) {
+            requestAnimationFrame(render);
+          } else {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+          }
+        }
+        render();
+      }
+    }
+
+    // INITIALIZATION ON WINDOW LOAD
+    window.onload = function() {
+      window.app = new PhoneticApp();
+      // Handle screen resize for confetti canvas
+      window.addEventListener('resize', () => {
+        const c = document.getElementById('confetti-canvas');
+        if (c) {
+          c.width = window.innerWidth;
+          c.height = window.innerHeight;
+        }
+      });
+    };
+  </script>
+</body>
+</html>
